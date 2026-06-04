@@ -159,7 +159,33 @@ impl Config {
                         .filter(|s| !s.is_empty())
                         .collect()
                 }
-                // "CUP_REGISTRIES" => ...
+                "CUP_REGISTRIES_AUTHENTICATION" => {
+                    value
+                        .split(',')
+                        .filter_map(|s| s.trim().split_once(':'))
+                        .for_each(|(registry, authentication)| {
+                            self.registries
+                                .entry(registry.to_string())
+                                .or_default()
+                                .authentication = Some(authentication.to_string());
+                        });
+                }
+                "CUP_REGISTRIES_INSECURE" => {
+                    value.split(',').for_each(|registry| {
+                        self.registries
+                            .entry(registry.to_string())
+                            .or_default()
+                            .insecure = true;
+                    });
+                }
+                "CUP_REGISTRIES_IGNORE" => {
+                    value.split(',').for_each(|registry| {
+                        self.registries
+                            .entry(registry.to_string())
+                            .or_default()
+                            .ignore = true;
+                    });
+                }
                 // "CUP_SERVERS" => ...
                 _ => println!("Warning: Skip unknown CUP_ variable '{}'.", key),
             });
